@@ -1,0 +1,23 @@
+version: "3.9"
+
+volumes:
+  temp_data: {}
+
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - temp_data:/var/lib/postgresql/data
+    env_file: .env
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    restart: on-failure
+    env_file: .env
+    depends_on:
+      - db
