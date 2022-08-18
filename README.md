@@ -1,8 +1,8 @@
-<div id="top"></div>
+<div id="top" align="center">
 
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-<br />
+</div>
 
 <div align="center">
   <h3 align="center">WhoThat</h3>
@@ -13,6 +13,8 @@
     <a href="https://whothat.wimon.dev/">See docs</a>
   </p>
 </div>
+
+<hr/>
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -95,7 +97,7 @@ npm run start
 npx prisma db push
 ```
 
-- prisma studio
+- prisma studio to inspect schema
 
 ```sh
 npx prisma studio
