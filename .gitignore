@@ -94,3 +94,6 @@ typings/
 lib/
 .DS_Store
 ._.DS_Store
+
+jwt.key
+jwt.key.pub

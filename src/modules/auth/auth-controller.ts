@@ -1,5 +1,5 @@
+import { hashPassword, verifyPassword } from "$crypto/hash";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { hashPassword, verifyPassword } from "utils/hash";
 import { CreateUserInput, LoginInput } from "./auth-schema";
 import { createUser, findUserByEmail } from "./auth-service";
 

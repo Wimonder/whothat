@@ -9,6 +9,8 @@
 
   <p align="center">
     A simple authentication server generating JWT access and refresh tokens for users.
+    <br/>
+    <b>DO NOT USE THIS IN PRODUCTION, USE A REAL AUTHENTICATION SERVER INSTEAD.</b>
     <br />
     <a href="https://whothat.wimon.dev/">See docs</a>
   </p>
@@ -55,6 +57,12 @@ To get a local copy up and running follow these simple example steps.
 
 - npm
 - node
+- a public/private keypair for signing and verifying tokens, generate them using the following command:
+  ```bash
+  ssh-keygen -t rsa -b 4096 -m PEM -f jwt.key -N ""
+  openssl rsa -in jwt.key -pubout -outform PEM -out jwt.key.pub
+  ```
+  The private key must be kept secret while the public key is shared with the applications who want to authenticate users.
 
 ### Installation
 

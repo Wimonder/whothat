@@ -1,5 +1,5 @@
-import { hashPassword } from "utils/hash";
-import prisma from "utils/prisma";
+import { hashPassword } from "$crypto/hash";
+import prisma from "$utils/prisma";
 import { CreateUserInput } from "./auth-schema";
 
 export async function createUser(input: CreateUserInput) {
