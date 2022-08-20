@@ -19,15 +19,13 @@ To create the signature part you have to take the encoded header, the encoded pa
 */
 
 import crypto from "crypto";
-import fs from "fs";
-import path from "path";
 
-const pubKeyPath = path.resolve("../../jwt.key.pub");
-const pubKeyFile = fs.readFileSync(pubKeyPath, "utf8");
-const pubKey = crypto.createPublicKey(pubKeyFile);
-const privateKeyPath = path.resolve("../../jwt.key");
-const privateKeyFile = fs.readFileSync(privateKeyPath, "utf8");
-const privateKey = crypto.createPrivateKey(privateKeyFile);
+// const pubKeyPath = path.resolve("../../jwt.key.pub");
+// const pubKeyFile = fs.readFileSync(pubKeyPath, "utf8");
+// const pubKey = crypto.createPublicKey(pubKeyFile);
+// const privateKeyPath = path.resolve("../../jwt.key");
+// const privateKeyFile = fs.readFileSync(privateKeyPath, "utf8");
+// const privateKey = crypto.createPrivateKey(privateKeyFile);
 
 export type PublicKey = crypto.KeyObject;
 export type PrivateKey = crypto.KeyObject;
@@ -36,10 +34,21 @@ export interface Keypair {
   privateKey: PrivateKey;
   publicKey: PublicKey;
 }
-
 export interface SignOptions {
   expiresIn?: number; // milliseconds
+  expiresAt?: number; // milliseconds
 }
+
+const defaultSignOptions = {
+  expiresIn: 1000 * 60 * 60 * 24, // 1 days
+};
+
+export type Claims = object & {
+  iss: string;
+  exp: number;
+  sub?: string;
+  aud?: string;
+};
 
 export interface SignInput {
   data: object;
@@ -49,45 +58,58 @@ export interface SignInput {
 
 export type JWT = string;
 
+const dateInPast = function ({ exp }: { exp: number }) {
+  const currentDate = new Date();
+  return currentDate.getTime() >= exp * 1000;
+};
+
 function createSignature(data: string, key: PrivateKey) {
   const signer = crypto.createSign("RSA-SHA256");
   signer.update(data);
   return signer.sign(key, "base64url");
 }
 
-export async function createJWT({ data, privateKey, options = {} }: SignInput) {
-  const expiresIn = Date.now() + (options.expiresIn || 15 * 60000);
+export async function create({ data, privateKey, options = {} }: SignInput) {
+  const finalOptions = { ...defaultSignOptions, ...options };
+  const expiry = finalOptions.expiresAt || Date.now() + finalOptions.expiresIn;
 
   const encodedHeader = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString(
     "base64url",
   );
-  const encodedData = Buffer.from(JSON.stringify({ ...data, exp: expiresIn })).toString(
-    "base64url",
-  );
+  const encodedData = Buffer.from(JSON.stringify({ ...data, exp: expiry })).toString("base64url");
   const signature = createSignature(`${encodedHeader}.${encodedData}`, privateKey);
 
   return `${encodedHeader}.${encodedData}.${signature}`;
 }
 
-export async function decode(token: JWT, publicKey: PublicKey) {
-  let [encodedHeader, encodedData, signature] = token.split(".");
+export async function verifyAndDecode(token: JWT, publicKey: PublicKey) {
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid token");
+  }
 
-  return Buffer.from(encodedData, "base64url").toString("utf8");
+  const [encodedHeader, encodedData, signature] = parts;
+  if (
+    !crypto
+      .createVerify("RSA-SHA256")
+      .update(`${encodedHeader}.${encodedData}`)
+      .verify(publicKey, signature, "base64url")
+  ) {
+    throw new Error("Invalid signature");
+  }
+
+  const decodedData = JSON.parse(Buffer.from(encodedData, "base64url").toString("utf8")) as Claims;
+  if (dateInPast(decodedData)) {
+    throw new Error("Token expired");
+  }
+
+  return decodedData;
 }
-
-export async function verify(token: JWT, publicKey: PublicKey) {
-  let [encodedHeader, encodedData, signature] = token.split(".");
-
-  return crypto
-    .createVerify("RSA-SHA256")
-    .update(`${encodedHeader}.${encodedData}`)
-    .verify(publicKey, signature, "base64url");
-}
-let token = await createJWT({
-  data: { sub: "1234567890", name: "John Doe", admin: true },
-  privateKey,
-  options: { expiresIn: 15 * 60000 },
-});
-console.log(token);
-console.log(await decode(token, pubKey));
-console.log(await verify(token, pubKey));
+// let token = await create({
+//   data: { sub: "1234567890", name: "John Doe", admin: true },
+//   privateKey,
+//   options: { expiresIn: 15 * 60000 },
+// });
+// console.log(token);
+// console.log(await decode(token, pubKey));
+// console.log(await verify(token, pubKey));
