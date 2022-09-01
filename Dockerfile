@@ -17,7 +17,11 @@ WORKDIR /home/node/app
 COPY --chown=node:node package*.json ./
 USER node
 RUN npm install --production
-COPY --from=builder /home/node/app/build ./build
+COPY --from=builder /home/node/app/build .
+COPY --from=builder /home/node/app/prisma ./prisma
+RUN npx prisma generate
 COPY --chown=node:node .env .
+COPY --chown=node:node jwt.key .
+COPY --chown=node:node jwt.key.pub .
 
-CMD [ "node", "build/index.js" ]
+CMD [ "node", "index.js" ]
