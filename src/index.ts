@@ -1,5 +1,7 @@
 import "dotenv/config";
 import fastify from "fastify";
+import { authRoutes } from "./modules/auth/auth-route";
+import { authSchemas } from "./modules/auth/auth-schema";
 
 const server = fastify({
   logger: {
@@ -7,10 +9,20 @@ const server = fastify({
   },
 });
 
+// Register request and response schemas
+for (const schema of authSchemas) {
+  server.addSchema(schema);
+}
+
+// Add healthcheck endpoint
 server.get("/healthcheck", async function () {
   return { status: "OK" };
 });
 
+// Register routes
+server.register(authRoutes);
+
+// Start server on specified port and host
 if (process.env.PORT === undefined) {
   throw new Error("PORT is not defined");
 }
