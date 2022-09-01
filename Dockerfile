@@ -8,6 +8,7 @@ RUN npm install -g ts-node
 USER node
 RUN npm install
 COPY --chown=node:node . .
+RUN npx prisma generate
 RUN npm run build
 
 FROM node:16-alpine AS runner
