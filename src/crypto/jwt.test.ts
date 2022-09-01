@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { create, verifyAndDecode } from "./jwt";
+import { createJWT, verifyAndDecode } from "./jwt";
 
 // Keys for testing
 const pubKeyFile = `
@@ -76,7 +76,7 @@ const privKey = crypto.createPrivateKey(privKeyFile);
 
 test("should create a JWT", async () => {
   const data = { sub: "1234567890", name: "John Doe", admin: true };
-  const token = await create({
+  const token = await createJWT({
     data,
     privateKey: privKey,
     options: {

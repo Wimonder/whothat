@@ -20,13 +20,6 @@ To create the signature part you have to take the encoded header, the encoded pa
 
 import crypto from "crypto";
 
-// const pubKeyPath = path.resolve("../../jwt.key.pub");
-// const pubKeyFile = fs.readFileSync(pubKeyPath, "utf8");
-// const pubKey = crypto.createPublicKey(pubKeyFile);
-// const privateKeyPath = path.resolve("../../jwt.key");
-// const privateKeyFile = fs.readFileSync(privateKeyPath, "utf8");
-// const privateKey = crypto.createPrivateKey(privateKeyFile);
-
 export type PublicKey = crypto.KeyObject;
 export type PrivateKey = crypto.KeyObject;
 
@@ -69,7 +62,7 @@ function createSignature(data: string, key: PrivateKey) {
   return signer.sign(key, "base64url");
 }
 
-export async function create({ data, privateKey, options = {} }: SignInput) {
+export async function createJWT({ data, privateKey, options = {} }: SignInput) {
   const finalOptions = { ...defaultSignOptions, ...options };
   const expiry = finalOptions.expiresAt || Date.now() + finalOptions.expiresIn;
 
@@ -105,11 +98,3 @@ export async function verifyAndDecode(token: JWT, publicKey: PublicKey) {
 
   return decodedData;
 }
-// let token = await create({
-//   data: { sub: "1234567890", name: "John Doe", admin: true },
-//   privateKey,
-//   options: { expiresIn: 15 * 60000 },
-// });
-// console.log(token);
-// console.log(await decode(token, pubKey));
-// console.log(await verify(token, pubKey));
