@@ -1,5 +1,8 @@
+import swagger from "@fastify/swagger";
 import "dotenv/config";
 import fastify from "fastify";
+import { withRefResolver } from "fastify-zod";
+import { version } from "../package.json";
 import { authRoutes } from "./modules/auth/auth-route";
 import { authSchemas } from "./modules/auth/auth-schema";
 
@@ -18,6 +21,23 @@ for (const schema of authSchemas) {
 server.get("/healthcheck", async function () {
   return { status: "OK" };
 });
+
+// Add swagger endpoint
+server.register(
+  swagger,
+  withRefResolver({
+    routePrefix: "/docs",
+    exposeRoute: true,
+    staticCSP: true,
+    openapi: {
+      info: {
+        title: "WhoThat API",
+        description: "API for JWT authentication with access and refresh tokens.",
+        version,
+      },
+    },
+  }),
+);
 
 // Register routes
 server.register(authRoutes);
