@@ -1,15 +1,15 @@
 import { FastifyInstance } from "fastify";
-import { loginHandler, registerUserHandler } from "./auth-controller";
-import { JsonSchemas } from "./auth-schema";
+import { getSessionHandler, loginHandler, registerUserHandler } from "./auth-controller";
+import { $ref } from "./auth-schema";
 
-async function authRoutes(fastify: FastifyInstance) {
+export async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/register",
     {
       schema: {
-        body: JsonSchemas.createUserSchema,
+        body: $ref("createUserSchema"),
         response: {
-          201: JsonSchemas.createUserResponseSchema,
+          201: $ref("createUserResponseSchema"),
         },
       },
     },
@@ -19,14 +19,23 @@ async function authRoutes(fastify: FastifyInstance) {
     "/login",
     {
       schema: {
-        body: JsonSchemas.loginSchema,
+        body: $ref("loginSchema"),
         response: {
-          200: JsonSchemas.loginResponseSchema,
+          200: $ref("loginResponseSchema"),
         },
       },
     },
     loginHandler,
   );
+  fastify.get(
+    "/session",
+    {
+      schema: {
+        response: {
+          200: $ref("sessionResponseSchema"),
+        },
+      },
+    },
+    getSessionHandler,
+  );
 }
-
-export default authRoutes;

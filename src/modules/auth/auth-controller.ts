@@ -1,7 +1,8 @@
-import { hashPassword, verifyPassword } from "$crypto/hash";
+import cookie from "cookie";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { hashPassword, verifyPassword } from "../../crypto/hash";
 import { CreateUserInput, LoginInput } from "./auth-schema";
-import { createUser, findUserByEmail } from "./auth-service";
+import { createUser, findUserByEmail, generateTokens } from "./auth-service";
 
 export async function registerUserHandler(
   req: FastifyRequest<{
@@ -47,13 +48,39 @@ export async function loginHandler(
 
   if (isCorrectPassword) {
     // Generate access and refresh tokens
-    const { password, salt, ...rest } = user;
-    const accessToken = generateAccessToken(rest);
-    const refreshToken = generateRefreshToken(rest);
-    return { accessToken: accessToken, refreshToken: refreshToken };
+    const tokens = await generateTokens(user);
+    // Set tokens in cookie and send response
+    return reply
+      .code(200)
+      .header(
+        "set-cookie",
+        cookie.serialize("accessToken", tokens.accessToken, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 1000,
+        }),
+      )
+      .header(
+        "set-cookie",
+        cookie.serialize("refreshToken", tokens.refreshToken, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 1000,
+        }),
+      );
   }
 
   return reply.code(401).send({
     error: "Invalid email or password",
   });
+}
+
+// export async function logoutHandler(req: FastifyRequest, reply: FastifyReply) {
+
+//   return {};
+// }
+
+export async function getSessionHandler(req: FastifyRequest, reply: FastifyReply) {
+  console.log(req.headers);
+  console.log(reply);
+  // invalidateSession(req.cookies.sessionId);
+  return {};
 }

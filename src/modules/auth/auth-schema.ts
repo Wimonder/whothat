@@ -1,5 +1,5 @@
+import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
-import zodToJsonSchema from "zod-to-json-schema";
 
 const userCore = {
   email: z
@@ -42,12 +42,18 @@ const loginResponseSchema = z.object({
   refreshToken: z.string(),
 });
 
+const sessionResponseSchema = z.object({
+  id: z.string(),
+  valid: z.boolean(),
+});
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 
-export const JsonSchemas = {
-  createUserSchema: zodToJsonSchema(createUserSchema),
-  createUserResponseSchema: zodToJsonSchema(createUserResponseSchema),
-  loginSchema: zodToJsonSchema(loginSchema),
-  loginResponseSchema: zodToJsonSchema(loginResponseSchema),
-};
+export const { schemas: authSchemas, $ref } = buildJsonSchemas({
+  createUserSchema,
+  createUserResponseSchema,
+  loginSchema,
+  loginResponseSchema,
+  sessionResponseSchema,
+});
