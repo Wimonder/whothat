@@ -12,6 +12,7 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
+    "dev": "tsnd --respawn --transpile-only --exit-child src/index.ts",
     "build": "tsc --project tsconfig.json",
     "start": "node build/index.js",
     "lint": "prettier --check --plugin-search-dir=./node_modules . && eslint .",
