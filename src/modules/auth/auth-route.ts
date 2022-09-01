@@ -1,5 +1,11 @@
 import { FastifyInstance } from "fastify";
-import { getSessionHandler, loginHandler, registerUserHandler } from "./auth-controller";
+import {
+  getSessionHandler,
+  loginHandler,
+  logoutHandler,
+  refreshHandler,
+  registerUserHandler,
+} from "./auth-controller";
 import { $ref } from "./auth-schema";
 
 export async function authRoutes(fastify: FastifyInstance) {
@@ -37,5 +43,27 @@ export async function authRoutes(fastify: FastifyInstance) {
       },
     },
     getSessionHandler,
+  );
+  fastify.post(
+    "/logout",
+    {
+      schema: {
+        response: {
+          200: $ref("logoutResponseSchema"),
+        },
+      },
+    },
+    logoutHandler,
+  );
+  fastify.post(
+    "/refresh",
+    {
+      schema: {
+        response: {
+          200: $ref("refreshResponseSchema"),
+        },
+      },
+    },
+    refreshHandler,
   );
 }

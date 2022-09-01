@@ -42,10 +42,25 @@ const loginResponseSchema = z.object({
   refreshToken: z.string(),
 });
 
-const sessionResponseSchema = z.object({
-  id: z.string(),
-  valid: z.boolean(),
+const logoutResponseSchema = z.object({
+  msg: z.string(),
 });
+
+const refreshResponseSchema = z.object({
+  msg: z.string(),
+});
+
+const sessionResponseSchema = z
+  .object({
+    id: z.string(),
+    email: z.string(),
+    username: z.string(),
+  })
+  .or(
+    z.object({
+      msg: z.string(),
+    }),
+  );
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -56,4 +71,6 @@ export const { schemas: authSchemas, $ref } = buildJsonSchemas({
   loginSchema,
   loginResponseSchema,
   sessionResponseSchema,
+  logoutResponseSchema,
+  refreshResponseSchema,
 });

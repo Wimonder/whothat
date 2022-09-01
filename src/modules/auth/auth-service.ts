@@ -23,6 +23,12 @@ export async function findUserByEmail(email: string) {
   });
 }
 
+export async function findUserById(id: number) {
+  return await prisma.user.findUnique({
+    where: { id },
+  });
+}
+
 export async function findUsers() {
   return await prisma.user.findMany({
     select: {
@@ -34,10 +40,16 @@ export async function findUsers() {
 }
 
 export async function generateTokens(user: User) {
-  // Create valid session
-  const session = await prisma.session.create({
-    data: { userId: user.id, valid: true },
+  // Check if a valid session exists already
+  let session = await prisma.session.findFirst({
+    where: { userId: user.id, valid: true },
   });
+  if (!session) {
+    // Create new session
+    session = await prisma.session.create({
+      data: { userId: user.id, valid: true },
+    });
+  }
   // Create access token
   const accessToken = await createJWT({
     data: {
@@ -61,9 +73,26 @@ export async function generateTokens(user: User) {
   return { accessToken, refreshToken };
 }
 
+export async function findSessionUser(sessionId: number) {
+  const session = await prisma.session.findUniqueOrThrow({
+    where: { id: sessionId },
+  });
+  return await prisma.user.findUniqueOrThrow({
+    where: { id: session.userId },
+  });
+}
+
 export async function invalidateSession(sessionId: number) {
   await prisma.session.update({
     where: { id: sessionId },
     data: { valid: false },
   });
+}
+
+export async function isValidSession(sessionId: number) {
+  return (
+    (await prisma.session.count({
+      where: { id: sessionId, valid: true },
+    })) > 0
+  );
 }

@@ -36,11 +36,12 @@ const defaultSignOptions = {
   expiresIn: 1000 * 60 * 60 * 24, // 1 days
 };
 
-export type Claims = object & {
+export type Claims = {
   iss: string;
   exp: number;
   sub?: string;
   aud?: string;
+  [key: string]: any;
 };
 
 export interface SignInput {
