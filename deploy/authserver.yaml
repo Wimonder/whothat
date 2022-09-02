@@ -1,0 +1,58 @@
+---
+- name: Install the authserver
+  hosts: all
+  remote_user: ubuntu
+  become: yes
+  vars:
+    git_repo_url: https://github.com/Wimonder/whothat
+    repo_branch: main
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+          - nginx
+        state: latest
+        update_cache: true
+    - name: Add Docker GPG apt key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add Docker apt repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    - name: Update apt and install docker ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+    - name: Install docker module for python
+      pip:
+        name: docker
+        state: latest
+    - name: Install docker compose
+      pip:
+        name: docker-compose
+        state: latest
+    - name: Clone project
+      ansible.builtin.git:
+        name: clone project
+        repo: "{{ git_repo_url }}"
+        dest: /home/ubuntu/whothat
+    - name: Start docker compose
+      docker_compose:
+        project_src: /home/ubuntu/whothat
+        files:
+          - docker-compose-prod.yaml

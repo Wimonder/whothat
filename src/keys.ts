@@ -1,3 +1,4 @@
+// Generate a keypair and upload it to a S3 bucket
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";

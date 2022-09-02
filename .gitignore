@@ -95,5 +95,7 @@ lib/
 .DS_Store
 ._.DS_Store
 
+# Credentials and keys
 jwt.key
 jwt.key.pub
+credentials.json

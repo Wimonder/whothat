@@ -5,9 +5,9 @@ volumes:
 
 services:
   db:
-    image: postgres
+    image: mysql
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
       - temp_data:/var/lib/postgresql/data
     env_file: .env

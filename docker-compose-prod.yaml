@@ -1,23 +1,19 @@
 version: "3.9"
 
-volumes:
-  temp_data: {}
-
 services:
-  db:
-    image: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - temp_data:/var/lib/postgresql/data
-    env_file: .prod.env
   backend:
     build: .
     ports:
-      - "8000:8000"
+      - "80:8000"
     volumes:
       - .:/app
     restart: on-failure
-    env_file: .prod.env
-    depends_on:
-      - db
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - NODE_ENV=production
+      - NPM_CONFIG_LOGLEVEL=error
+      - MYSQL_HOST
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - DATABASE_URL

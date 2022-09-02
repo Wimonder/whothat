@@ -112,6 +112,15 @@ npx prisma db push
 npx prisma studio
 ```
 
+#### Deploy
+
+- deploy to Google Cloud Platform by filling in your project variables in `authserver.yaml` and running the following commands:
+
+```sh
+terraform init
+terraform apply
+```
+
 <!-- LICENSE -->
 
 ## License
