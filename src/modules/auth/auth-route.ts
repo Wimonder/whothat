@@ -28,6 +28,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/application/:applicationId",
     {
       schema: {
+        params: $ref("applicationParamsSchema"),
         response: {
           200: $ref("applicationResponseSchema"),
         },
@@ -39,6 +40,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/application/:applicationId/public-key",
     {
       schema: {
+        params: $ref("applicationParamsSchema"),
         response: {
           200: $ref("publicKeyResponseSchema"),
         },
@@ -50,6 +52,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/register",
     {
       schema: {
+        params: $ref("applicationParamsSchema"),
         body: $ref("createUserSchema"),
         response: {
           201: $ref("createUserResponseSchema"),
@@ -62,6 +65,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/login",
     {
       schema: {
+        params: $ref("applicationParamsSchema"),
         body: $ref("loginSchema"),
         response: {
           200: $ref("loginResponseSchema"),
@@ -74,6 +78,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/session",
     {
       schema: {
+        params: $ref("applicationParamsSchema"),
         response: {
           200: $ref("sessionResponseSchema"),
         },
@@ -85,6 +90,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/logout",
     {
       schema: {
+        params: $ref("applicationParamsSchema"),
         response: {
           200: $ref("logoutResponseSchema"),
         },
@@ -96,6 +102,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/refresh",
     {
       schema: {
+        params: $ref("applicationParamsSchema"),
         response: {
           200: $ref("refreshResponseSchema"),
         },

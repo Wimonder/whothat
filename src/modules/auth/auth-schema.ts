@@ -8,6 +8,12 @@ const applicationCore = {
   }),
 };
 
+const applicationParamsSchema = z.object({
+  applicationId: z.string({
+    required_error: "Application ID is required",
+  }),
+});
+
 const createApplicationSchema = z.object({ ...applicationCore });
 
 const applicationResponseSchema = z.object({ ...applicationCore, id: z.string() });
@@ -90,4 +96,5 @@ export const { schemas: authSchemas, $ref } = buildJsonSchemas({
   createApplicationSchema,
   applicationResponseSchema,
   publicKeyResponseSchema,
+  applicationParamsSchema,
 });
