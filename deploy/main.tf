@@ -1,3 +1,7 @@
+// Variable declarations
+variable "project_id" {}
+variable "services" {}
+
 terraform {
   required_providers {
     google = {
@@ -15,7 +19,7 @@ resource "google_project_service" "services" {
 }
 
 provider "google" {
-  credentials = file("credentials.json")
+  credentials = file("../credentials.json")
   project     = var.project_id
   region  = "europe-west3"
 }
