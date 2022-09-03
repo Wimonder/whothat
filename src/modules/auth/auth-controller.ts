@@ -40,7 +40,7 @@ export async function getApplicationPublicKeyHandler(
   const { applicationId } = req.params;
   try {
     const publicKey = await readPublicKey(parseInt(applicationId));
-    return reply.code(200).send(publicKey);
+    return reply.code(200).send(publicKey.export({ type: "pkcs1", format: "pem" }));
   } catch (err) {
     console.log(err);
     return reply.code(500).send(err);
