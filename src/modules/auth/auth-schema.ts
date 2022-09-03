@@ -1,6 +1,17 @@
 import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
+const applicationCore = {
+  name: z.string({
+    required_error: "Name is required",
+    invalid_type_error: "Name must be a string",
+  }),
+};
+
+const createApplicationSchema = z.object({ ...applicationCore });
+
+const applicationResponseSchema = z.object({ ...applicationCore, id: z.string() });
+
 const userCore = {
   email: z
     .string({
@@ -62,8 +73,11 @@ const sessionResponseSchema = z
     }),
   );
 
+const publicKeyResponseSchema = z.string();
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
 
 export const { schemas: authSchemas, $ref } = buildJsonSchemas({
   createUserSchema,
@@ -73,4 +87,7 @@ export const { schemas: authSchemas, $ref } = buildJsonSchemas({
   sessionResponseSchema,
   logoutResponseSchema,
   refreshResponseSchema,
+  createApplicationSchema,
+  applicationResponseSchema,
+  publicKeyResponseSchema,
 });

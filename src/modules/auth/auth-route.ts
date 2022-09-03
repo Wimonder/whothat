@@ -1,5 +1,8 @@
 import { FastifyInstance } from "fastify";
 import {
+  createApplicationHandler,
+  getApplicationHandler,
+  getApplicationPublicKeyHandler,
   getSessionHandler,
   loginHandler,
   logoutHandler,
@@ -10,7 +13,41 @@ import { $ref } from "./auth-schema";
 
 export async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
-    "/register",
+    "/application",
+    {
+      schema: {
+        body: $ref("createApplicationSchema"),
+        response: {
+          201: $ref("applicationResponseSchema"),
+        },
+      },
+    },
+    createApplicationHandler,
+  );
+  fastify.get(
+    "/application/:applicationId",
+    {
+      schema: {
+        response: {
+          200: $ref("applicationResponseSchema"),
+        },
+      },
+    },
+    getApplicationHandler,
+  );
+  fastify.get(
+    "/application/:applicationId/public-key",
+    {
+      schema: {
+        response: {
+          200: $ref("publicKeyResponseSchema"),
+        },
+      },
+    },
+    getApplicationPublicKeyHandler,
+  );
+  fastify.post(
+    "/:applicationId/register",
     {
       schema: {
         body: $ref("createUserSchema"),
@@ -22,7 +59,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     registerUserHandler,
   );
   fastify.post(
-    "/login",
+    "/:applicationId/login",
     {
       schema: {
         body: $ref("loginSchema"),
@@ -34,7 +71,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     loginHandler,
   );
   fastify.get(
-    "/session",
+    "/:applicationId/session",
     {
       schema: {
         response: {
@@ -45,7 +82,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     getSessionHandler,
   );
   fastify.post(
-    "/logout",
+    "/:applicationId/logout",
     {
       schema: {
         response: {
@@ -56,7 +93,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     logoutHandler,
   );
   fastify.post(
-    "/refresh",
+    "/:applicationId/refresh",
     {
       schema: {
         response: {

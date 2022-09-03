@@ -48,7 +48,6 @@
         state: latest
     - name: Clone project
       ansible.builtin.git:
-        name: clone project
         repo: "{{ git_repo_url }}"
         dest: /home/ubuntu/whothat
     - name: Start docker compose

@@ -8,19 +8,40 @@ datasource db {
 }
 
 model User {
-    id       Int       @id @default(autoincrement())
-    email    String    @unique
-    username String?
-    password String
-    salt     String
-    Session  Session[]
+    id            Int         @id @default(autoincrement())
+    email         String      @unique
+    username      String?
+    password      String
+    salt          String
+    sessions      Session[]
+    application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+    applicationId Int
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
 
     @@index([email])
 }
 
 model Session {
-    id     Int     @id @default(autoincrement())
-    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId Int
-    valid  Boolean
+    id            Int         @id @default(autoincrement())
+    user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+    applicationId Int
+    userId        Int
+    valid         Boolean
+}
+
+model Application {
+    id               Int       @id @default(autoincrement())
+    name             String
+    applicationState Status    @default(value: ACTIVE)
+    users            User[]
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @updatedAt
+    Session          Session[]
+}
+
+enum Status {
+    ACTIVE
+    SUSPENDED
 }

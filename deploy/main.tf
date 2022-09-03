@@ -6,10 +6,17 @@ terraform {
     }
   }
 }
+resource "google_project_service" "services" {
+  // Add the necessary services with a for each loop
+  for_each = toset(var.services)
+  service  = each.value
+
+  disable_dependent_services = true
+}
 
 provider "google" {
   credentials = file("credentials.json")
-  project     = "own-projects-361309"
+  project     = var.project_id
   region  = "europe-west3"
 }
 
