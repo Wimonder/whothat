@@ -19,8 +19,6 @@ export async function createApplication(input: CreateApplicationInput) {
     privateKeyEncoding: {
       type: "pkcs1",
       format: "pem",
-      cipher: "aes-256-cbc",
-      passphrase: "",
     },
   });
   // Create the application
