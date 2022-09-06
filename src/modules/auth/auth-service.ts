@@ -51,7 +51,7 @@ export async function createApplication(input: CreateApplicationInput) {
 }
 
 export async function findApplication(applicationId: number) {
-  const application = await prisma.application.findFirst({
+  const application = await prisma.application.findFirstOrThrow({
     where: {
       id: applicationId,
     },

@@ -54,16 +54,7 @@ const loginSchema = z.object({
   password: z.string(),
 });
 
-const loginResponseSchema = z.object({
-  accessToken: z.string(),
-  refreshToken: z.string(),
-});
-
 const logoutResponseSchema = z.object({
-  msg: z.string(),
-});
-
-const refreshResponseSchema = z.object({
   msg: z.string(),
 });
 
@@ -79,22 +70,29 @@ const sessionResponseSchema = z
     }),
   );
 
+const tokenSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+});
+
 const publicKeyResponseSchema = z.string();
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
+export type TokenInput = z.infer<typeof tokenSchema>;
+export type TokenOutput = TokenInput;
+export type ApplicationParams = z.infer<typeof applicationParamsSchema>;
 
 export const { schemas: authSchemas, $ref } = buildJsonSchemas({
   createUserSchema,
   createUserResponseSchema,
   loginSchema,
-  loginResponseSchema,
   sessionResponseSchema,
   logoutResponseSchema,
-  refreshResponseSchema,
   createApplicationSchema,
   applicationResponseSchema,
   publicKeyResponseSchema,
   applicationParamsSchema,
+  tokenSchema,
 });

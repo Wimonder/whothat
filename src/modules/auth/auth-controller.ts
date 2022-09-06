@@ -1,8 +1,13 @@
-import cookie from "cookie";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { hashPassword, verifyPassword } from "../../crypto/hash";
 import { verifyAndDecode } from "../../crypto/jwt";
-import { CreateApplicationInput, CreateUserInput, LoginInput } from "./auth-schema";
+import {
+  ApplicationParams,
+  CreateApplicationInput,
+  CreateUserInput,
+  LoginInput,
+  TokenInput,
+} from "./auth-schema";
 import {
   createApplication,
   createUser,
@@ -33,7 +38,7 @@ export async function createApplicationHandler(
 
 export async function getApplicationPublicKeyHandler(
   req: FastifyRequest<{
-    Params: { applicationId: string };
+    Params: ApplicationParams;
   }>,
   reply: FastifyReply,
 ) {
@@ -49,9 +54,7 @@ export async function getApplicationPublicKeyHandler(
 
 export async function getApplicationHandler(
   req: FastifyRequest<{
-    Params: {
-      applicationId: string;
-    };
+    Params: ApplicationParams;
   }>,
   reply: FastifyReply,
 ) {
@@ -89,9 +92,7 @@ export async function registerUserHandler(
 export async function loginHandler(
   req: FastifyRequest<{
     Body: LoginInput;
-    Params: {
-      applicationId: string;
-    };
+    Params: ApplicationParams;
   }>,
   reply: FastifyReply,
 ) {
@@ -118,9 +119,11 @@ export async function loginHandler(
   if (isCorrectPassword) {
     // Generate access and refresh tokens
     const tokens = await generateTokens(user, parseInt(applicationId));
-    // Set tokens in cookie and send response
-    setTokens(reply, tokens.accessToken, tokens.refreshToken);
-    return reply.code(200).send();
+    // Send response
+    return reply.code(200).send({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    });
   }
 
   return reply.code(401).send({
@@ -130,22 +133,15 @@ export async function loginHandler(
 
 export async function refreshHandler(
   req: FastifyRequest<{
-    Params: {
-      applicationId: string;
-    };
+    Body: TokenInput;
+    Params: ApplicationParams;
   }>,
   reply: FastifyReply,
 ) {
   const { applicationId } = req.params;
   // Validate current refresh token and generate new access and refresh token
-  if (!req.headers.cookie) {
-    return reply.code(400).send({
-      msg: "No refresh token provided",
-    });
-  }
-  // Read refresh token from cookie
-  const cookies = cookie.parse(req.headers.cookie);
-  const refreshToken = cookies.refreshToken;
+  const oldTokens = req.body;
+  const refreshToken = oldTokens.refreshToken;
   if (!refreshToken) {
     return reply.code(400).send({
       msg: "No refresh token provided",
@@ -171,30 +167,24 @@ export async function refreshHandler(
   // Fetch the user corresponding to the session
   const user = await findSessionUser(tokenData.sessionId, parseInt(applicationId));
   const tokens = await generateTokens(user, parseInt(applicationId));
-  setTokens(reply, tokens.accessToken, tokens.refreshToken);
   return reply.code(200).send({
-    msg: "Refresh successful",
+    accessToken: tokens.accessToken,
+    refresToke: tokens.refreshToken,
   });
 }
 
 export async function logoutHandler(
   req: FastifyRequest<{
-    Params: {
-      applicationId: string;
-    };
+    Body: TokenInput;
+    Params: ApplicationParams;
   }>,
   reply: FastifyReply,
 ) {
   const { applicationId } = req.params;
-  if (!req.headers.cookie) {
-    return reply.code(200).send({
-      msg: "Logged out",
-    });
-  }
   // Read session id
-  const cookies = cookie.parse(req.headers.cookie);
-  const accessToken = cookies.accessToken;
-  const refreshToken = cookies.refreshToken;
+  const tokens = req.body;
+  const accessToken = tokens.accessToken;
+  const refreshToken = tokens.refreshToken;
   if (!refreshToken || !accessToken) {
     return reply.code(200).send({
       msg: "Logged out",
@@ -211,44 +201,22 @@ export async function logoutHandler(
   }
   // Delete the session
   invalidateSession(tokenData.sessionId);
-  // Remove cookies
-  return reply
-    .header(
-      "set-cookie",
-      cookie.serialize("accessToken", "", {
-        maxAge: 0,
-        httpOnly: true,
-      }),
-    )
-    .header(
-      "set-cookie",
-      cookie.serialize("refreshToken", "", {
-        maxAge: 0,
-        httpOnly: true,
-      }),
-    )
-    .send({
-      msg: "Logged out",
-    });
+  return reply.send({
+    msg: "Logged out",
+  });
 }
 
 export async function getSessionHandler(
   req: FastifyRequest<{
-    Params: {
-      applicationId: string;
-    };
+    Querystring: TokenInput;
+    Params: ApplicationParams;
   }>,
   reply: FastifyReply,
 ) {
   const { applicationId } = req.params;
-  if (!req.headers.cookie) {
-    return reply.code(200).send({
-      msg: "No session found",
-    });
-  }
-  const cookies = cookie.parse(req.headers.cookie);
-  const accessToken = cookies.accessToken;
-  const refreshToken = cookies.refreshToken;
+  const tokens = req.query;
+  const accessToken = tokens.accessToken;
+  const refreshToken = tokens.refreshToken;
   if (!accessToken || !refreshToken) {
     return reply.code(200).send({
       msg: "No session found",
@@ -281,22 +249,4 @@ export async function getSessionHandler(
       msg: "No session found",
     });
   }
-}
-
-function setTokens(reply: FastifyReply, accessToken: string, refreshToken: string) {
-  return reply
-    .header(
-      "set-cookie",
-      cookie.serialize("accessToken", accessToken, {
-        httpOnly: true,
-        maxAge: 60 * 60 * 1000,
-      }),
-    )
-    .header(
-      "set-cookie",
-      cookie.serialize("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 1000,
-      }),
-    );
 }

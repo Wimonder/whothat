@@ -21,4 +21,4 @@ COPY --from=builder /home/node/app/build .
 COPY --from=builder /home/node/app/prisma ./prisma
 RUN npx prisma generate
 
-CMD [ "node", "index.js" ]
+CMD [ "node", "src/index.js" ]

@@ -68,7 +68,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         params: $ref("applicationParamsSchema"),
         body: $ref("loginSchema"),
         response: {
-          200: $ref("loginResponseSchema"),
+          200: $ref("tokenSchema"),
         },
       },
     },
@@ -78,6 +78,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/session",
     {
       schema: {
+        querystring: $ref("tokenSchema"),
         params: $ref("applicationParamsSchema"),
         response: {
           200: $ref("sessionResponseSchema"),
@@ -90,6 +91,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/logout",
     {
       schema: {
+        body: $ref("tokenSchema"),
         params: $ref("applicationParamsSchema"),
         response: {
           200: $ref("logoutResponseSchema"),
@@ -102,9 +104,10 @@ export async function authRoutes(fastify: FastifyInstance) {
     "/:applicationId/refresh",
     {
       schema: {
+        body: $ref("tokenSchema"),
         params: $ref("applicationParamsSchema"),
         response: {
-          200: $ref("refreshResponseSchema"),
+          200: $ref("tokenSchema"),
         },
       },
     },
