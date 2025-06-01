@@ -13,7 +13,6 @@
     <br/>
     <b>DO NOT USE THIS IN PRODUCTION, USE A REAL AUTHENTICATION SERVER INSTEAD.</b>
     <br />
-    <a href="https://whothat.wimon.dev/">See docs</a>
   </p>
 </div>
 
